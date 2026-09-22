@@ -1,0 +1,35 @@
+{
+  "name": "pi-jev-guard",
+  "version": "0.1.0",
+  "description": "Guard pi file mutations against project constraints using TypeSafe AI's Jev decision model",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "pi",
+    "pi-extension",
+    "jev",
+    "typesafe-ai",
+    "constraints"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test 'test/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.85.1",
+    "@types/node": "^22.20.4",
+    "typescript": "^5.7.2"
+  }
+}
