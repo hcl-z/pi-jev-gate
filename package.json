@@ -1,15 +1,26 @@
 {
   "name": "pi-jev-gate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Guard pi file mutations against project constraints using TypeSafe AI's Jev decision model",
   "type": "module",
   "license": "MIT",
+  "author": "hcl-z",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hcl-z/pi-jev-gate.git"
+  },
+  "homepage": "https://github.com/hcl-z/pi-jev-gate#readme",
+  "bugs": {
+    "url": "https://github.com/hcl-z/pi-jev-gate/issues"
+  },
   "keywords": [
     "pi",
+    "pi-package",
     "pi-extension",
     "jev",
     "typesafe-ai",
-    "constraints"
+    "constraints",
+    "guardrails"
   ],
   "pi": {
     "extensions": [
