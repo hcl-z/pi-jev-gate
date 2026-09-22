@@ -28,7 +28,6 @@ export interface SelectRecord {
 export class FakeUI {
 	notifications: NotifyRecord[] = [];
 	selects: SelectRecord[] = [];
-	statuses = new Map<string, string | undefined>();
 	/** Answers returned by successive `select` calls. `undefined` means Escape. */
 	selectAnswers: (string | undefined)[] = [];
 
@@ -46,14 +45,6 @@ export class FakeUI {
 		return this.selectAnswers.shift();
 	}
 
-	async confirm(): Promise<boolean> {
-		throw new Error("FakeUI.confirm should not be used by this extension");
-	}
-
-	setStatus(key: string, text: string | undefined): void {
-		this.statuses.set(key, text);
-	}
-
 	/** Every notification message joined, for substring assertions. */
 	notifiedText(): string {
 		return this.notifications.map((n) => n.message).join("\n");
@@ -63,7 +54,6 @@ export class FakeUI {
 export interface FakeContextOptions {
 	cwd?: string;
 	hasUI?: boolean;
-	mode?: string;
 	signal?: AbortSignal;
 }
 
@@ -72,13 +62,11 @@ export class FakeContext {
 	ui = new FakeUI();
 	cwd: string;
 	hasUI: boolean;
-	mode: string;
 	signal: AbortSignal | undefined;
 
 	constructor(options: FakeContextOptions = {}) {
 		this.cwd = options.cwd ?? "/project";
 		this.hasUI = options.hasUI ?? true;
-		this.mode = options.mode ?? "tui";
 		this.signal = options.signal;
 	}
 }
@@ -188,6 +176,11 @@ export interface FakeHttpOptions {
 	rawBody?: string;
 	/** Thrown instead of responding, to simulate a transport failure. */
 	error?: Error;
+	/**
+	 * Never resolves until the request's own signal aborts, which is how the
+	 * client's internal timeout is exercised without waiting for real time.
+	 */
+	hang?: boolean;
 }
 
 /** Records outgoing requests and replies with a synthesised Jev response. */
@@ -213,6 +206,21 @@ export class FakeHttp {
 
 			const options = this.queue.shift() ?? this.options;
 			if (options.error) throw options.error;
+
+			if (options.hang) {
+				// Mirror what fetch does on abort: reject with an AbortError.
+				await new Promise<never>((_resolve, reject) => {
+					const signal = init.signal;
+					if (!signal) return;
+					const fail = () => {
+						const error = new Error("This operation was aborted");
+						error.name = "AbortError";
+						reject(error);
+					};
+					if (signal.aborted) fail();
+					else signal.addEventListener("abort", fail, { once: true });
+				});
+			}
 
 			const status = options.status ?? 200;
 			if (options.rawBody !== undefined) {
@@ -302,6 +310,7 @@ export interface FakeDepsOptions {
 	http?: FakeHttp;
 	settings?: string | undefined;
 	env?: Record<string, string>;
+	timeoutMs?: number;
 }
 
 export interface FakeDeps {
@@ -334,6 +343,9 @@ export function makeDeps(options: FakeDepsOptions = {}): FakeDeps {
 			logLines.push(line);
 		},
 		env: (name) => env[name],
+		...(options.timeoutMs !== undefined
+			? { timeoutMs: options.timeoutMs }
+			: {}),
 	};
 
 	return {

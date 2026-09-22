@@ -16,11 +16,12 @@ import type {
 	EvaluationResult,
 	HttpTransport,
 } from "./types.ts";
+import { isRecord, messageOf } from "./util.ts";
 
 export const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
 
 /** Short, because a human is waiting behind this call. */
-const TIMEOUT_MS = 8000;
+export const DEFAULT_TIMEOUT_MS = 8000;
 
 /** One retry: enough for a transient blip, not enough to feel like a hang. */
 const MAX_ATTEMPTS = 2;
@@ -33,6 +34,8 @@ export interface EvaluateArgs {
 	apiKey: string;
 	model: string;
 	signal: AbortSignal | undefined;
+	/** Per-attempt timeout; defaults to `DEFAULT_TIMEOUT_MS`. */
+	timeoutMs?: number;
 }
 
 export async function evaluate(
@@ -64,7 +67,10 @@ async function attemptEvaluate(
 	// The caller's signal must still cancel us, so the timeout is combined with
 	// it rather than replacing it: Escape has to abort an in-flight judgment.
 	const timeout = new AbortController();
-	const timer = setTimeout(() => timeout.abort(), TIMEOUT_MS);
+	const timer = setTimeout(
+		() => timeout.abort(),
+		args.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+	);
 	const signal = combineSignals(args.signal, timeout.signal);
 
 	try {
@@ -225,12 +231,4 @@ function combineSignals(
 
 function asNumber(value: unknown): number | undefined {
 	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function messageOf(error: unknown): string {
-	return error instanceof Error ? error.message : String(error);
 }

@@ -6,16 +6,28 @@
  * will disable the guard entirely.
  */
 
-import type { ConstraintVerdict } from "./types.ts";
+import type { Constraint, ConstraintVerdict } from "./types.ts";
 
 export const REWORK = "Send back for rework";
 export const ALLOW_ONCE = "Allow this change";
 export const IGNORE_SESSION = "Ignore this constraint for the session";
+export const IGNORE_SESSION_PICK = "Ignore one of these constraints…";
 
 /** Order matters: rework is first so it reads as the default. */
-export const DIALOG_OPTIONS = [REWORK, ALLOW_ONCE, IGNORE_SESSION];
+export function dialogOptions(violationCount: number): string[] {
+	return [
+		REWORK,
+		ALLOW_ONCE,
+		// The label must not promise to silence one rule while silencing several.
+		violationCount === 1 ? IGNORE_SESSION : IGNORE_SESSION_PICK,
+	];
+}
 
-export type DialogChoice = "rework" | "allow-once" | "ignore-session";
+export type DialogOutcome =
+	| { choice: "rework" }
+	| { choice: "allow-once" }
+	/** Exactly the constraints the user named. */
+	| { choice: "ignore-session"; constraints: Constraint[] };
 
 export interface DialogUI {
 	select(title: string, options: string[]): Promise<string | undefined>;
@@ -30,16 +42,51 @@ export interface DialogUI {
 export async function askAboutViolations(
 	ui: DialogUI,
 	violations: ConstraintVerdict[],
-): Promise<DialogChoice> {
-	const answer = await ui.select(buildTitle(violations), DIALOG_OPTIONS);
-	switch (answer) {
-		case ALLOW_ONCE:
-			return "allow-once";
-		case IGNORE_SESSION:
-			return "ignore-session";
-		default:
-			return "rework";
+): Promise<DialogOutcome> {
+	const answer = await ui.select(
+		buildTitle(violations),
+		dialogOptions(violations.length),
+	);
+
+	if (answer === ALLOW_ONCE) return { choice: "allow-once" };
+
+	if (answer === IGNORE_SESSION) {
+		const only = violations[0];
+		// Only offered when there is exactly one violation.
+		return only
+			? { choice: "ignore-session", constraints: [only.constraint] }
+			: { choice: "rework" };
 	}
+
+	if (answer === IGNORE_SESSION_PICK) {
+		return pickConstraintToIgnore(ui, violations);
+	}
+
+	return { choice: "rework" };
+}
+
+/**
+ * With several rules fired at once, silencing all of them on one keypress would
+ * disable rules the user never named. Make them name one.
+ */
+async function pickConstraintToIgnore(
+	ui: DialogUI,
+	violations: ConstraintVerdict[],
+): Promise<DialogOutcome> {
+	const labels = violations.map((violation) => violation.constraint.name);
+	const answer = await ui.select(
+		"Which constraint should stop being checked this session?",
+		labels,
+	);
+
+	// Escape out of the sub-selection falls back to the safe action.
+	if (answer === undefined) return { choice: "rework" };
+
+	const index = labels.indexOf(answer);
+	const chosen = violations[index]?.constraint;
+	if (!chosen) return { choice: "rework" };
+
+	return { choice: "ignore-session", constraints: [chosen] };
 }
 
 /**

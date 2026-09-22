@@ -6,6 +6,7 @@
  */
 
 import type { GuardConfig } from "./types.ts";
+import { isRecord } from "./util.ts";
 
 export const DEFAULT_THRESHOLD = 0.6;
 
@@ -65,10 +66,6 @@ function nonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : undefined;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function stripBom(text: string): string {

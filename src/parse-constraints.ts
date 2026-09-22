@@ -8,6 +8,7 @@
  */
 
 import type { Constraint } from "./types.ts";
+import { capWithMarker } from "./util.ts";
 
 /** Long constraints are truncated so one rule cannot crowd out the rest. */
 const MAX_CONSTRAINT_CHARS = 4000;
@@ -140,8 +141,8 @@ function deriveName(text: string): string {
 }
 
 function truncate(text: string): string {
-	if (text.length <= MAX_CONSTRAINT_CHARS) return text;
-	return `${text.slice(0, MAX_CONSTRAINT_CHARS)}\n[constraint truncated]`;
+	return capWithMarker(text, MAX_CONSTRAINT_CHARS, "\n[constraint truncated]")
+		.text;
 }
 
 /**

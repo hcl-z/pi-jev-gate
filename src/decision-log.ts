@@ -17,6 +17,7 @@ import type {
 	GuardConfig,
 	LogSink,
 } from "./types.ts";
+import { messageOf } from "./util.ts";
 
 export type LogVerdict =
 	| "allowed"
@@ -35,6 +36,8 @@ export interface LogRecord {
 	constraints: { id: string; name: string; sourceFile: string }[];
 	probabilities?: Record<string, number>;
 	violations?: string[];
+	/** Constraints the user chose to silence, when they silenced any. */
+	ignoredIds?: string[];
 	threshold: number;
 	model: string;
 	verdict: LogVerdict;
@@ -53,6 +56,7 @@ export interface LogInput {
 	constraints: Constraint[];
 	verdicts?: ConstraintVerdict[];
 	violations?: ConstraintVerdict[];
+	ignoredIds?: string[];
 	config: GuardConfig;
 	verdict: LogVerdict;
 	degradedReason?: string;
@@ -116,8 +120,8 @@ export class DecisionLog {
 				sourceFile: constraint.sourceFile,
 			})),
 			threshold: input.config.threshold,
-			// The requested model, so a log read months later still says what was
-			// asked for; `answeredBy` records what actually replied.
+			// The versioned model that actually answered, falling back to the
+			// requested name when nothing answered (a degraded check).
 			model: input.answeredBy ?? input.config.model,
 			verdict: input.verdict,
 			elapsedMs: input.elapsedMs,
@@ -136,6 +140,7 @@ export class DecisionLog {
 		if (input.violations) {
 			record.violations = input.violations.map((v) => v.constraint.id);
 		}
+		if (input.ignoredIds) record.ignoredIds = input.ignoredIds;
 
 		if (input.degradedReason !== undefined) {
 			record.degradedReason = input.degradedReason;
@@ -148,8 +153,4 @@ export class DecisionLog {
 
 		return record;
 	}
-}
-
-function messageOf(error: unknown): string {
-	return error instanceof Error ? error.message : String(error);
 }

@@ -11,6 +11,7 @@
  */
 
 import type { ChangeDescription } from "./types.ts";
+import { capWithMarker } from "./util.ts";
 
 /**
  * Change content budget. Jev's state shares a 32k-token window with the longest
@@ -37,9 +38,17 @@ const IN_PLACE_EDIT = /\b(sed|perl|ruby|gawk|awk)\b[^|;&]*\s-(-in-place|i\b|i')/
 /** Output redirection, excluding the `2>&1`-style descriptor duplications. */
 const REDIRECTION = /(^|[^0-9>&])>>?(?!&)/;
 
-/** Package managers and build tools that write into the working tree. */
+/**
+ * Package managers and VCS subcommands that rewrite the working tree.
+ *
+ * Slightly beyond the ticket's list of "mutating commands, in-place editing,
+ * redirection", and deliberately so: `npm install` rewrites `package.json` and
+ * the lockfile, and `git checkout -- path` overwrites files, both of which a
+ * dependency or generated-code rule would want to see. Kept to subcommands that
+ * unambiguously touch files, so read-only `git log` and `npm test` stay free.
+ */
 const WRITES_TREE =
-	/(^|[\s;&|(`])(npm|pnpm|yarn|bun|pip|pip3|poetry|uv|cargo|go|git)\s+(install|add|remove|rm|uninstall|init|clean|checkout|restore|reset|revert|apply|stash|mv)\b/;
+	/(^|[\s;&|(`])(npm|pnpm|yarn|bun|pip|pip3|poetry|uv|cargo|go)\s+(install|add|remove|rm|uninstall|init)\b|(^|[\s;&|(`])git\s+(checkout|restore|reset|revert|apply|stash|mv|clean|rm)\b/;
 
 /** PowerShell cmdlets that mutate the filesystem. */
 const MUTATING_POWERSHELL =
@@ -142,12 +151,9 @@ export function mayMutateFilesystem(
 	return false;
 }
 
+/** Caps a change to the budget, marking any truncation in the text itself. */
 function cap(text: string): { text: string; truncated: boolean } {
-	if (text.length <= MAX_CHANGE_CHARS) return { text, truncated: false };
-	return {
-		text: `${text.slice(0, MAX_CHANGE_CHARS)}${TRUNCATION_NOTE}`,
-		truncated: true,
-	};
+	return capWithMarker(text, MAX_CHANGE_CHARS, TRUNCATION_NOTE);
 }
 
 function asString(value: unknown): string | undefined {

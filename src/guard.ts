@@ -12,17 +12,16 @@ import {
 	runCommand,
 } from "./command.ts";
 import { resolveConfig } from "./config.ts";
-import { DecisionLog, type LogVerdict } from "./decision-log.ts";
-import { askAboutViolations, type DialogChoice } from "./dialog.ts";
+import {
+	DecisionLog,
+	type LogInput,
+	type LogVerdict,
+} from "./decision-log.ts";
+import { askAboutViolations } from "./dialog.ts";
 import { describeChange, type ToolCallLike } from "./describe-change.ts";
 import { evaluate } from "./jev-client.ts";
 import { ConstraintLoader } from "./load-constraints.ts";
-import type {
-	Constraint,
-	ConstraintVerdict,
-	Deps,
-	GuardConfig,
-} from "./types.ts";
+import type { ConstraintVerdict, Deps } from "./types.ts";
 
 /** Minimal shape of what the guard uses from pi's extension API. */
 interface PiLike {
@@ -91,15 +90,19 @@ export function createGuard(pi: PiLike, deps: Deps): void {
 
 		const record = (
 			verdict: LogVerdict,
-			extra: {
-				verdicts?: ConstraintVerdict[];
-				violations?: ConstraintVerdict[];
-				degradedReason?: string;
-				userChoice?: string;
-				inputTokens?: number;
-				outputTokens?: number;
-				answeredBy?: string;
-			} = {},
+			extra: Partial<
+				Pick<
+					LogInput,
+					| "verdicts"
+					| "violations"
+					| "degradedReason"
+					| "userChoice"
+					| "ignoredIds"
+					| "inputTokens"
+					| "outputTokens"
+					| "answeredBy"
+				>
+			> = {},
 		) => {
 			if (!config.log) return;
 			const warning = log.write({
@@ -131,6 +134,7 @@ export function createGuard(pi: PiLike, deps: Deps): void {
 			apiKey: config.apiKey,
 			model: config.model,
 			signal: ctx.signal,
+			...(deps.timeoutMs !== undefined ? { timeoutMs: deps.timeoutMs } : {}),
 		});
 
 		if (result.outcome === "degraded") {
@@ -159,23 +163,25 @@ export function createGuard(pi: PiLike, deps: Deps): void {
 			return undefined;
 		}
 
-		const choice = await askAboutViolations(ctx.ui, violations);
+		const outcome = await askAboutViolations(ctx.ui, violations);
 
-		if (choice === "allow-once") {
+		if (outcome.choice === "allow-once") {
 			record("allowed-once", {
 				...shared,
 				violations,
-				userChoice: choiceLabel(choice),
+				userChoice: "allow-once",
 			});
 			return undefined;
 		}
 
-		if (choice === "ignore-session") {
-			for (const violation of violations) ignored.add(violation.constraint.id);
+		if (outcome.choice === "ignore-session") {
+			// Only the constraints the user named, never the whole batch.
+			for (const constraint of outcome.constraints) ignored.add(constraint.id);
 			record("ignored", {
 				...shared,
 				violations,
-				userChoice: choiceLabel(choice),
+				userChoice: "ignore-session",
+				ignoredIds: outcome.constraints.map((c) => c.id),
 			});
 			return undefined;
 		}
@@ -183,7 +189,7 @@ export function createGuard(pi: PiLike, deps: Deps): void {
 		record("blocked", {
 			...shared,
 			violations,
-			userChoice: choiceLabel(choice),
+			userChoice: "rework",
 		});
 		return { block: true, reason: buildReason(violations) };
 	});
@@ -211,11 +217,6 @@ export function createGuard(pi: PiLike, deps: Deps): void {
 			ctx.ui.notify(lines.join("\n"), "info");
 		},
 	});
-}
-
-/** Stable log values, independent of the dialog's display labels. */
-function choiceLabel(choice: DialogChoice): string {
-	return choice;
 }
 
 /**
@@ -259,5 +260,3 @@ function buildReason(violations: ConstraintVerdict[]): string {
 	);
 	return parts.join("\n");
 }
-
-export type { Constraint, GuardConfig };

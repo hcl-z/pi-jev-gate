@@ -105,4 +105,9 @@ export interface Deps {
 	log: LogSink;
 	/** Environment lookup, so tests control TYPESAFE_API_KEY. */
 	env(name: string): string | undefined;
+	/**
+	 * Per-attempt request timeout. Injected so tests can exercise the timeout
+	 * path without waiting for real time; deliberately not user-configurable.
+	 */
+	timeoutMs?: number;
 }

@@ -6,9 +6,17 @@
  * file stays small enough to need no tests of its own.
  */
 
-import { readFileSync, readdirSync, statSync, appendFileSync, mkdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import {
+	appendFileSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+} from "node:fs";
 import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
 import { createGuard } from "./guard.ts";
 import type { Deps } from "./types.ts";
@@ -84,10 +92,18 @@ function realDeps(): Deps {
 }
 
 /**
- * pi's agent directory. Resolved from its own exported helper when available so
- * that rebranded distributions land in the right place, falling back to the
- * conventional path when the import is unavailable.
+ * pi's agent directory.
+ *
+ * Resolved through pi's own exported helper so a rebranded distribution, or one
+ * configured with a different agent directory, lands in the right place. The
+ * conventional path is only a fallback for a pi too old to export it.
  */
 function resolveAgentDir(): string {
+	try {
+		const dir = getAgentDir();
+		if (typeof dir === "string" && dir.length > 0) return dir;
+	} catch {
+		// Fall through to the conventional location.
+	}
 	return join(homedir(), ".pi", "agent");
 }

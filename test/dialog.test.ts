@@ -12,6 +12,12 @@ import { test } from "node:test";
 
 import { createGuard } from "../src/guard.ts";
 import {
+	ALLOW_ONCE,
+	IGNORE_SESSION,
+	IGNORE_SESSION_PICK,
+	REWORK,
+} from "../src/dialog.ts";
+import {
 	FakeContext,
 	FakeExtensionAPI,
 	FakeFileSystem,
@@ -61,9 +67,12 @@ function fire(h: ReturnType<typeof harness>, name = "a.ts") {
 	return h.pi.fireToolCall(writeCall(`/project/src/${name}`, "x"), h.ctx);
 }
 
-/** The label the extension uses for each outcome, discovered from the dialog. */
+/** The labels the extension shows when a single rule fired. */
 async function labels(): Promise<string[]> {
-	const h = harness({ answers: [undefined] });
+	const h = harness({
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [undefined],
+	});
 	await fire(h);
 	return h.ctx.ui.selects[0]?.options ?? [];
 }
@@ -112,9 +121,10 @@ test("the dialog shows the actual probability", async () => {
 });
 
 test("choosing rework blocks with the constraint text", async () => {
-	const all = await labels();
-	const rework = all[0];
-	const h = harness({ byIndex: [0.95, 0.01], answers: [rework] });
+	const h = harness({
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [REWORK],
+	});
 
 	const result = await fire(h);
 
@@ -134,8 +144,10 @@ test("Escape blocks, exactly as rework does", async () => {
 });
 
 test("choosing allow-once proceeds", async () => {
-	const all = await labels();
-	const h = harness({ byIndex: [0.95, 0.01], answers: [all[1]] });
+	const h = harness({
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [ALLOW_ONCE],
+	});
 
 	const result = await fire(h);
 
@@ -143,10 +155,9 @@ test("choosing allow-once proceeds", async () => {
 });
 
 test("allow-once does not carry over: the next call asks again", async () => {
-	const all = await labels();
 	const h = harness({
-		byIndex: [0.95, 0.01],
-		answers: [all[1], all[1]],
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [ALLOW_ONCE, ALLOW_ONCE],
 	});
 
 	await fire(h, "first.ts");
@@ -157,11 +168,15 @@ test("allow-once does not carry over: the next call asks again", async () => {
 });
 
 test("session-ignore proceeds and drops the rule from the next request", async () => {
-	const all = await labels();
 	const h = harness({
 		byName: { transport: 0.95, dependencies: 0.01 },
-		answers: [all[2]],
+		answers: [IGNORE_SESSION],
 	});
+	// The second call must not trip the surviving rule, so it has nothing to ask.
+	h.http.queue = [
+		{ byName: { transport: 0.95, dependencies: 0.01 } },
+		{ probability: 0.01 },
+	];
 
 	const first = await fire(h, "first.ts");
 	assert.equal(first, undefined);
@@ -183,10 +198,9 @@ test("session-ignore proceeds and drops the rule from the next request", async (
 });
 
 test("session-ignore leaves the other rules enforced", async () => {
-	const all = await labels();
 	const h = harness({
 		byName: { transport: 0.95, dependencies: 0.01 },
-		answers: [all[2], all[0]],
+		answers: [IGNORE_SESSION, REWORK],
 	});
 	// The second call trips the rule that was not ignored.
 	h.http.queue = [
@@ -203,9 +217,11 @@ test("session-ignore leaves the other rules enforced", async () => {
 });
 
 test("ignoring every rule silences the guard without further requests", async () => {
-	const all = await labels();
-	const h = harness({ answers: [all[2], all[2]] });
-	// Each call trips one rule, so each is ignored in turn.
+	const h = harness({
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [IGNORE_SESSION, IGNORE_SESSION],
+	});
+	// Each call trips exactly one rule, so each is silenced singly.
 	h.http.queue = [
 		{ byName: { transport: 0.95, dependencies: 0.01 } },
 		{ byName: { dependencies: 0.95 } },
@@ -236,8 +252,7 @@ test("several violations at once are presented together", async () => {
 });
 
 test("rework on a multi-violation dialog blocks on all of them", async () => {
-	const all = await labels();
-	const h = harness({ byIndex: [0.95, 0.9], answers: [all[0]] });
+	const h = harness({ probability: 0.95, answers: [REWORK] });
 
 	const result = await fire(h);
 
@@ -245,15 +260,74 @@ test("rework on a multi-violation dialog blocks on all of them", async () => {
 	assert.match(result?.reason ?? "", /2 project constraints/);
 });
 
-test("session-ignore on a multi-violation dialog ignores all of them", async () => {
-	const all = await labels();
-	const h = harness({ byIndex: [0.95, 0.9], answers: [all[2]] });
+test("session-ignore on a multi-violation dialog silences only the named rule", async () => {
+	const h = harness({
+		byName: { transport: 0.95, dependencies: 0.9 },
+		// The top-level choice, which rule to silence, then the survivor's dialog.
+		answers: [
+			IGNORE_SESSION_PICK,
+			"No business logic in transport",
+			REWORK,
+		],
+	});
 
-	await fire(h, "first.ts");
+	const first = await fire(h, "first.ts");
+	assert.equal(first, undefined);
+
 	const second = await fire(h, "second.ts");
 
-	assert.equal(second, undefined);
-	assert.equal(h.http.requests.length, 1, "nothing left to ask about");
+	assert.equal(
+		h.http.questionIds(1).length,
+		1,
+		"only the named rule may be dropped",
+	);
+	assert.match(
+		h.http.instructions(1)[0] ?? "",
+		/dependency-free/,
+		"the rule the user did not name must still be enforced",
+	);
+	assert.equal(
+		second?.block,
+		true,
+		"and it must still be able to block on its own",
+	);
+});
+
+test("the ignore label is singular only when one rule fired", async () => {
+	const single = harness({
+		byName: { transport: 0.95, dependencies: 0.01 },
+		answers: [undefined],
+	});
+	await fire(single);
+	assert.deepEqual(single.ctx.ui.selects[0]?.options[2], IGNORE_SESSION);
+
+	const multi = harness({ probability: 0.95, answers: [undefined] });
+	await fire(multi);
+	assert.equal(
+		multi.ctx.ui.selects[0]?.options[2],
+		IGNORE_SESSION_PICK,
+		"the label must not promise to silence one rule while silencing several",
+	);
+});
+
+test("escaping the rule picker falls back to rework", async () => {
+	const h = harness({ probability: 0.95, answers: [IGNORE_SESSION_PICK, undefined] });
+
+	const result = await fire(h);
+
+	assert.equal(result?.block, true);
+});
+
+test("nothing is silenced when the picker is escaped", async () => {
+	const h = harness({
+		probability: 0.95,
+		answers: [IGNORE_SESSION_PICK, undefined, undefined],
+	});
+
+	await fire(h, "first.ts");
+	await fire(h, "second.ts");
+
+	assert.equal(h.http.questionIds(1).length, 2, "both rules still enforced");
 });
 
 test("no violation means no dialog", async () => {

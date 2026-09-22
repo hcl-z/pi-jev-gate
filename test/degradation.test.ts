@@ -23,7 +23,11 @@ import {
 
 const RULES = "## A rule\nSome rule body.\n";
 
-function harness(httpOptions: FakeHttpOptions, signal?: AbortSignal) {
+function harness(
+	httpOptions: FakeHttpOptions,
+	signal?: AbortSignal,
+	timeoutMs?: number,
+) {
 	const fs = new FakeFileSystem();
 	fs.write("/project/constraints.md", RULES);
 	const http = new FakeHttp(httpOptions);
@@ -31,6 +35,7 @@ function harness(httpOptions: FakeHttpOptions, signal?: AbortSignal) {
 		fs,
 		http,
 		settings: JSON.stringify({ jevGuard: { apiKey: "k" } }),
+		...(timeoutMs !== undefined ? { timeoutMs } : {}),
 	});
 	const pi = new FakeExtensionAPI();
 	createGuard(pi as never, fake.deps);
@@ -171,6 +176,53 @@ test("degradation never asks the user anything", async () => {
 		0,
 		"there is no decision to make: the call proceeds",
 	);
+});
+
+test("a request that times out lets the call through with a warning", async () => {
+	const h = harness({ hang: true }, undefined, 10);
+
+	const result = await fire(h);
+
+	assert.equal(result, undefined);
+	assert.match(h.ctx.ui.notifiedText(), /timed out/i);
+});
+
+test("a timeout is retried once", async () => {
+	const h = harness({ hang: true }, undefined, 10);
+
+	await fire(h);
+
+	assert.equal(
+		h.http.requests.length,
+		2,
+		"a timeout is transient, so it deserves one retry",
+	);
+});
+
+test("a slow first attempt that then succeeds is judged normally", async () => {
+	const h = harness({ probability: 0.1 }, undefined, 20);
+	h.http.queue = [{ hang: true }, { probability: 0.95 }];
+	h.ctx.ui.selectAnswers = [undefined];
+
+	const result = await fire(h);
+
+	assert.equal(result?.block, true);
+});
+
+test("the user's Escape wins over a pending timeout", async () => {
+	const controller = new AbortController();
+	const h = harness({ hang: true }, controller.signal, 5000);
+	setTimeout(() => controller.abort(), 5);
+
+	const result = await fire(h);
+
+	assert.equal(result, undefined);
+	assert.equal(
+		h.ctx.ui.notifications.length,
+		0,
+		"a user-initiated cancel is silent, unlike a timeout",
+	);
+	assert.equal(h.http.requests.length, 1, "and it is not retried");
 });
 
 test("an aborted signal ends the check without blocking", async () => {

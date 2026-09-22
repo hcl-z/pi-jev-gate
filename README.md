@@ -128,6 +128,8 @@ The right number for your project depends on how your rules are written. The dia
 | Allow this change | The call proceeds. Nothing is remembered |
 | Ignore this constraint for the session | The call proceeds, and that rule stops being checked until pi restarts |
 
+When several rules fire at once, the third option becomes *Ignore one of these constraints…* and asks which one — silencing a rule you did not name would quietly widen the hole you meant to poke.
+
 Escape means rework — dismissing the dialog is the safe action, not the permissive one. There is no timeout: a gate that lets things through while you read a diff is not a gate.
 
 The ignore list is in memory only and is never written to disk, so it cannot quietly weaken your project's rules beyond the current session. `/jev-guard clear` restores everything.
@@ -148,7 +150,8 @@ The ignore list is in memory only and is never written to disk, so it cannot qui
 - no API key configured
 - network failure, timeout, rate limiting, service overload
 - a response that cannot be read
-- no `constraints.md`, or one that yields no rules
+
+A project with no `constraints.md` is different: the guard stays completely silent and never calls the API, so installing it globally costs nothing in projects that don't use it.
 
 This is deliberate. The guard is a constraint advisor, not a security boundary — anything that can run a shell command can bypass it trivially. Its value is catching honest drift early, and a guard that breaks your agent when the network hiccups is a guard you uninstall on day one.
 

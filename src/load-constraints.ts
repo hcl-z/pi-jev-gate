@@ -7,6 +7,8 @@
  * but silently ignored is the worst failure this feature can have.
  */
 
+import { join } from "node:path";
+
 import type { Constraint, FileSystemReader } from "./types.ts";
 import { parseConstraints } from "./parse-constraints.ts";
 
@@ -99,9 +101,4 @@ export class ConstraintLoader {
 		this.cache.set(absolute, { mtimeMs, constraints });
 		return constraints;
 	}
-}
-
-function join(base: string, segment: string): string {
-	const trimmed = base.endsWith("/") ? base.slice(0, -1) : base;
-	return `${trimmed}/${segment}`;
 }
