@@ -5,5 +5,7 @@ node_modules/
 # pi's local task/session scratch, not project content
 .pi/
 
-# Local spec and ticket working notes
+# Local working notes: spec/tickets and reference material
 .scratch/
+docs/
+AGENTS.md
