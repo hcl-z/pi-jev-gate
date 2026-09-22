@@ -1,0 +1,77 @@
+src/load-constraints.ts
+  s_c5283a41993edd::t_4d555b0a950609 10-11
+.scratch/jev-constraint-guard/issues/02-constraint-discovery.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7-15
+src/jev-client.ts
+  s_c5283a41993edd::t_78e14f81261d76 19
+  s_c5283a41993edd::t_25c11fc7f8bb18 24,37-38,70-73
+src/config.ts
+  s_c5283a41993edd::t_78e14f81261d76 9
+test/degradation.test.ts
+  s_c5283a41993edd::t_b95c8a71c62af0 26-30,38,181-225
+src/guard.ts
+  s_c5283a41993edd::t_9b08083c82bd08 15-20,93-105,166,168,172,177-179,183-184,192
+  s_c5283a41993edd::t_94ed839d681169 24
+  s_c5283a41993edd::t_0bd99ef9fcf4ea 137
+src/parse-constraints.ts
+  s_c5283a41993edd::t_33b3ff6aaf6332 11,144-145
+.scratch/jev-constraint-guard/issues/04-shell-interception.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7,9-16
+src/dialog.ts
+  s_c5283a41993edd::t_f0d5c36e12a917 57
+  s_c5283a41993edd::t_19724aa943069a 9,14,17-24,26-30,45-56,58-62,64-89
+.scratch/jev-constraint-guard/issues/01-minimal-write-edit-block.md
+  s_c5283a41993edd::t_f3f6401810d4b4 9,11-25
+test/helpers.ts
+  s_c5283a41993edd::t_5cc9f017d38249 179-183,210-223
+  s_c5283a41993edd::t_7cf8cca38614fe 313,346-348
+.scratch/jev-constraint-guard/issues/05-dialog.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7,9-14,16-19
+  s_c5283a41993edd::t_7d3ab4af0bbdd9 15,20-25
+.scratch/jev-constraint-guard/issues/03-constraint-parsing.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7,9-17
+.scratch/jev-constraint-guard/issues/08-inspect-command.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7-15
+src/decision-log.ts
+  s_c5283a41993edd::t_add42a1ec6578c 39-40,59,123-124,143
+  s_c5283a41993edd::t_78e14f81261d76 20
+.scratch/jev-constraint-guard/issues/06-degradation.md
+  s_c5283a41993edd::t_e90183c18c5f28 7-28
+src/util.ts
+  s_c5283a41993edd::t_159b35c98beee8 1-32
+.scratch/jev-constraint-guard/issues/09-release-readiness.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7,9-17
+  s_c5283a41993edd::t_9c23445c41c41b 18-25
+.scratch/jev-constraint-guard/issues/07-logging.md
+  s_c5283a41993edd::t_f3f6401810d4b4 7,9-16
+src/index.ts
+  s_c5283a41993edd::t_b8b19e917ca98a 9-15,17-19,95-99,102-107
+README.md
+  s_c5283a41993edd::t_f38b50e009228f 131-132,153-154
+test/dialog.test.ts
+  s_c5283a41993edd::t_96f4f17a293a73 124-127,147-150,159-160,255
+  s_c5283a41993edd::t_1809d164b775ba 15-19,70,72-75,173,203,266-271,288-292
+  s_c5283a41993edd::t_5d500146e6133e 263-265,272-275,279-287,293-330
+  s_c5283a41993edd::t_f9d2aeaac1b045 175-179,220-224
+src/describe-change.ts
+  s_c5283a41993edd::t_33b3ff6aaf6332 14,154,156
+  s_c5283a41993edd::t_50ca0b0757a6c8 41-49,51
+src/types.ts
+  s_c5283a41993edd::t_b29927a5a5a7b1 108-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "49d71a1d45d4d2a29722ef248f517aef0fab9749",
+  "prompts": {},
+  "sessions": {
+    "s_c5283a41993edd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0c821-b779-741a-a8a6-cf50fd8bb9e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "hcl-z <1401859664@qq.com>"
+    }
+  }
+}
