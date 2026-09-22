@@ -1,0 +1,23 @@
+package-lock.json
+  s_c5283a41993edd::t_5568e0eebe63ac 22,2415,2425,2439
+.npmrc
+  s_c5283a41993edd::t_03ed20f5e2d45a 1-6
+.gitignore
+  s_c5283a41993edd::t_f08957d0913f41 4-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "29d0aae911d84e5600ae2230b8549dbef1cfb74a",
+  "prompts": {},
+  "sessions": {
+    "s_c5283a41993edd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0c821-b779-741a-a8a6-cf50fd8bb9e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "hcl-z <1401859664@qq.com>"
+    }
+  }
+}
