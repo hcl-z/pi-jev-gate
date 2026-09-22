@@ -1,0 +1,65 @@
+test/dialog.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-280
+src/index.ts
+  s_c5283a41993edd::t_a236f39475b320 1-93
+test/helpers.ts
+  s_c5283a41993edd::t_a236f39475b320 1-403
+src/command.ts
+  s_c5283a41993edd::t_a236f39475b320 1-130
+test/degradation.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-250
+src/config.ts
+  s_c5283a41993edd::t_a236f39475b320 1-76
+src/load-constraints.ts
+  s_c5283a41993edd::t_a236f39475b320 1-107
+src/decision-log.ts
+  s_c5283a41993edd::t_a236f39475b320 1-155
+src/parse-constraints.ts
+  s_c5283a41993edd::t_a236f39475b320 1-164
+src/describe-change.ts
+  s_c5283a41993edd::t_a236f39475b320 1-155
+test/guard.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-359
+test/logging.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-351
+test/parsing.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-220
+test/command.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-269
+src/types.ts
+  s_c5283a41993edd::t_a236f39475b320 1-108
+tsconfig.json
+  s_c5283a41993edd::t_a236f39475b320 1-18
+package.json
+  s_c5283a41993edd::t_a236f39475b320 1-35
+src/guard.ts
+  s_c5283a41993edd::t_a236f39475b320 1-263
+test/shell.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-187
+test/discovery.test.ts
+  s_c5283a41993edd::t_a236f39475b320 1-202
+package-lock.json
+  s_c5283a41993edd::t_a236f39475b320 1-2445
+README.md
+  s_c5283a41993edd::t_a236f39475b320 1-203
+src/dialog.ts
+  s_c5283a41993edd::t_a236f39475b320 1-61
+src/jev-client.ts
+  s_c5283a41993edd::t_a236f39475b320 1-236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "99db56ce5dab426ba2ff17d6224ba608f84eebe2",
+  "prompts": {},
+  "sessions": {
+    "s_c5283a41993edd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0c821-b779-741a-a8a6-cf50fd8bb9e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "hcl-z <1401859664@qq.com>"
+    }
+  }
+}
