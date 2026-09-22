@@ -1,0 +1,20 @@
+.gitignore
+  s_c5283a41993edd::t_1026a8c8f87e64 11
+  s_c5283a41993edd::t_bc1a82a3c36fc7 8,10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "cbc5ac40e64b42afd00c90a9c881ea034250ce2c",
+  "prompts": {},
+  "sessions": {
+    "s_c5283a41993edd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0c821-b779-741a-a8a6-cf50fd8bb9e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "hcl-z <1401859664@qq.com>"
+    }
+  }
+}
