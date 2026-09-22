@@ -32,7 +32,7 @@ function harness(files: Record<string, string>, mtimes: Record<string, number> =
 	const fake = makeDeps({
 		fs,
 		http,
-		settings: JSON.stringify({ jevGuard: { apiKey: "k" } }),
+		settings: JSON.stringify({ jevGate: { apiKey: "k" } }),
 	});
 	const pi = new FakeExtensionAPI();
 	createGuard(pi as never, fake.deps);

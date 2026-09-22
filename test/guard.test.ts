@@ -45,7 +45,7 @@ function harness(options: HarnessOptions = {}) {
 	}
 	const settings =
 		options.settings ??
-		JSON.stringify({ jevGuard: { apiKey: "test-key", threshold: 0.6 } });
+		JSON.stringify({ jevGate: { apiKey: "test-key", threshold: 0.6 } });
 	const fake = makeDeps({
 		fs,
 		...(options.http ? { http: options.http } : {}),
@@ -108,7 +108,7 @@ test("a custom threshold is honoured", async () => {
 	const h = harness({
 		http,
 		settings: JSON.stringify({
-			jevGuard: { apiKey: "k", threshold: 0.4 },
+			jevGate: { apiKey: "k", threshold: 0.4 },
 		}),
 	});
 
@@ -201,7 +201,7 @@ test("a configured model overrides the pinned default", async () => {
 	const http = new FakeHttp({ probability: 0.1 });
 	const h = harness({
 		http,
-		settings: JSON.stringify({ jevGuard: { apiKey: "k", model: "jev-2.0.0" } }),
+		settings: JSON.stringify({ jevGate: { apiKey: "k", model: "jev-2.0.0" } }),
 	});
 
 	await h.pi.fireToolCall(writeCall("/project/a.ts", "x"), h.ctx);
@@ -259,7 +259,7 @@ test("TYPESAFE_API_KEY takes precedence over the configured key", async () => {
 	const http = new FakeHttp({ probability: 0.1 });
 	const h = harness({
 		http,
-		settings: JSON.stringify({ jevGuard: { apiKey: "from-settings" } }),
+		settings: JSON.stringify({ jevGate: { apiKey: "from-settings" } }),
 		env: { TYPESAFE_API_KEY: "from-env" },
 	});
 
@@ -299,7 +299,7 @@ test("wrongly typed config values fall back to defaults", async () => {
 	const h = harness({
 		http,
 		settings: JSON.stringify({
-			jevGuard: { apiKey: "k", threshold: "not a number", model: 42 },
+			jevGate: { apiKey: "k", threshold: "not a number", model: 42 },
 		}),
 	});
 
@@ -331,7 +331,7 @@ test("no constraints file: the guard is silent and makes no request", async () =
 	const fake = makeDeps({
 		fs,
 		http,
-		settings: JSON.stringify({ jevGuard: { apiKey: "k" } }),
+		settings: JSON.stringify({ jevGate: { apiKey: "k" } }),
 	});
 	const pi = new FakeExtensionAPI();
 	createGuard(pi as never, fake.deps);

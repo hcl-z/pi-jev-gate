@@ -225,10 +225,10 @@ export function createGuard(pi: PiLike, deps: Deps): void {
  */
 function degraded(ctx: GuardContext, reason: string, isSetup: boolean): void {
 	const suffix = isSetup
-		? " — set TYPESAFE_API_KEY or jevGuard.apiKey in your pi settings"
+		? " — set TYPESAFE_API_KEY or jevGate.apiKey in your pi settings"
 		: "";
 	ctx.ui.notify(
-		`jev-guard: constraint check skipped (${reason})${suffix}`,
+		`jev-gate: constraint check skipped (${reason})${suffix}`,
 		"warning",
 	);
 }

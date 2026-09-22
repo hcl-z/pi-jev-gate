@@ -104,7 +104,7 @@ export class DecisionLog {
 	private warnOnce(reason: string): string | undefined {
 		if (this.warned) return undefined;
 		this.warned = true;
-		return `jev-guard: could not write the decision log (${reason}); logging is now off for this session`;
+		return `jev-gate: could not write the decision log (${reason}); logging is now off for this session`;
 	}
 
 	private buildRecord(input: LogInput): LogRecord {

@@ -34,7 +34,7 @@ function harness(
 	const fake = makeDeps({
 		fs,
 		http,
-		settings: JSON.stringify({ jevGuard: { apiKey: "k" } }),
+		settings: JSON.stringify({ jevGate: { apiKey: "k" } }),
 		...(timeoutMs !== undefined ? { timeoutMs } : {}),
 	});
 	const pi = new FakeExtensionAPI();

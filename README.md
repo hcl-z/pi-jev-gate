@@ -1,4 +1,4 @@
-# pi-jev-guard
+# pi-jev-gate
 
 Check file changes against your project's written constraints, at the moment they happen.
 
@@ -24,14 +24,14 @@ Jev fits where a second LLM would not: it returns typed probabilities instead of
 ## Install
 
 ```bash
-pi install npm:pi-jev-guard
+pi install npm:pi-jev-gate
 ```
 
 Then add your TypeSafe API key to `~/.pi/agent/settings.json`:
 
 ```json
 {
-  "jevGuard": {
+  "jevGate": {
     "apiKey": "your-key"
   }
 }
@@ -67,7 +67,7 @@ A flat list with no headings works too — each top-level bullet is one rule:
 - No writes to generated code.
 ```
 
-Run `/jev-guard` to see how your file was actually split. **Do this once before you trust the guard** — a rule you think is one constraint being split into three is the most likely thing to go wrong, and it is otherwise invisible.
+Run `/jev-gate` to see how your file was actually split. **Do this once before you trust the guard** — a rule you think is one constraint being split into three is the most likely thing to go wrong, and it is otherwise invisible.
 
 ### Write rules the way you would write a contract
 
@@ -92,7 +92,7 @@ All fields are optional. Global settings only, in `~/.pi/agent/settings.json`:
 
 ```json
 {
-  "jevGuard": {
+  "jevGate": {
     "apiKey": "your-key",
     "threshold": 0.6,
     "model": "jev-1.13.0",
@@ -132,15 +132,15 @@ When several rules fire at once, the third option becomes *Ignore one of these c
 
 Escape means rework — dismissing the dialog is the safe action, not the permissive one. There is no timeout: a gate that lets things through while you read a diff is not a gate.
 
-The ignore list is in memory only and is never written to disk, so it cannot quietly weaken your project's rules beyond the current session. `/jev-guard clear` restores everything.
+The ignore list is in memory only and is never written to disk, so it cannot quietly weaken your project's rules beyond the current session. `/jev-gate clear` restores everything.
 
-## `/jev-guard`
+## `/jev-gate`
 
 ```
-/jev-guard          show parsed constraints, config and the ignore list
-/jev-guard clear    stop ignoring everything
-/jev-guard off      disable for this session
-/jev-guard on       re-enable
+/jev-gate          show parsed constraints, config and the ignore list
+/jev-gate clear    stop ignoring everything
+/jev-gate off      disable for this session
+/jev-gate on       re-enable
 ```
 
 ## When it does not run
@@ -161,7 +161,7 @@ Escape cancels an in-flight check.
 
 ## The log
 
-With `log: true`, every check appends one JSON line to `~/.pi/agent/jev-guard.jsonl`:
+With `log: true`, every check appends one JSON line to `~/.pi/agent/jev-gate.jsonl`:
 
 ```json
 {"timestamp":"...","tool":"write","path":"src/transport.ts","operation":"create or overwrite a file","change":"...","constraints":[...],"probabilities":{"constraints.md#No business logic in transport":0.91},"violations":["constraints.md#No business logic in transport"],"threshold":0.6,"model":"jev-1.13.0","verdict":"blocked","userChoice":"rework","elapsedMs":180,"inputTokens":312,"outputTokens":24}
@@ -172,7 +172,7 @@ One record per line, so you can aggregate:
 ```bash
 # Which probabilities did I actually allow through?
 jq -r 'select(.userChoice=="allow-once") | .probabilities | to_entries[] | .value' \
-  ~/.pi/agent/jev-guard.jsonl | sort -n
+  ~/.pi/agent/jev-gate.jsonl | sort -n
 ```
 
 Skipped checks are logged too, as `verdict: "degraded"`, so a gap in enforcement is visible afterwards.

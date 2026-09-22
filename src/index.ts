@@ -22,9 +22,9 @@ import { createGuard } from "./guard.ts";
 import type { Deps } from "./types.ts";
 
 /** Log file name inside pi's agent directory. */
-const LOG_FILE = "jev-guard.jsonl";
+const LOG_FILE = "jev-gate.jsonl";
 
-export default function jevGuard(pi: unknown): void {
+export default function jevGate(pi: unknown): void {
 	createGuard(pi as never, realDeps());
 }
 

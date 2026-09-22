@@ -46,7 +46,7 @@ function harness(options: HarnessOptions = {}) {
 	const fake = makeDeps({
 		fs,
 		http,
-		settings: JSON.stringify({ jevGuard: guardBlock }),
+		settings: JSON.stringify({ jevGate: guardBlock }),
 	});
 	const pi = new FakeExtensionAPI();
 	createGuard(pi as never, fake.deps);

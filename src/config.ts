@@ -50,7 +50,7 @@ function readGuardBlock(settingsText: string | undefined): {
 		return {};
 	}
 	if (!isRecord(parsed)) return {};
-	const block = parsed.jevGuard;
+	const block = parsed.jevGate;
 	if (!isRecord(block)) return {};
 	return block;
 }

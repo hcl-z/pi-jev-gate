@@ -1,5 +1,5 @@
 {
-  "name": "pi-jev-guard",
+  "name": "pi-jev-gate",
   "version": "0.1.0",
   "description": "Guard pi file mutations against project constraints using TypeSafe AI's Jev decision model",
   "type": "module",

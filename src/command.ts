@@ -1,5 +1,5 @@
 /**
- * The `/jev-guard` command.
+ * The `/jev-gate` command.
  *
  * Its primary purpose is observability of parsing. A mismatch between the rules
  * a user thinks they wrote and the constraints the parser produced is the single
@@ -8,10 +8,10 @@
 
 import type { Constraint, GuardConfig } from "./types.ts";
 
-export const COMMAND_NAME = "jev-guard";
+export const COMMAND_NAME = "jev-gate";
 
 export const COMMAND_DESCRIPTION =
-	"Show parsed project constraints and jev-guard status";
+	"Show parsed project constraints and jev-gate status";
 
 export interface CommandState {
 	constraints: Constraint[];
@@ -27,7 +27,7 @@ export interface CommandActions {
 }
 
 /**
- * Handles `/jev-guard [clear|on|off]`.
+ * Handles `/jev-gate [clear|on|off]`.
  *
  * Returns the lines to display, so the report is assertable without a terminal.
  */
@@ -41,21 +41,21 @@ export function runCommand(
 	switch (argument) {
 		case "clear":
 			actions.clearIgnored();
-			return ["jev-guard: the session ignore list is now empty."];
+			return ["jev-gate: the session ignore list is now empty."];
 		case "off":
 			actions.setEnabled(false);
 			return [
-				"jev-guard: disabled for this session. Re-enable with /jev-guard on.",
+				"jev-gate: disabled for this session. Re-enable with /jev-gate on.",
 			];
 		case "on":
 			actions.setEnabled(true);
-			return ["jev-guard: enabled."];
+			return ["jev-gate: enabled."];
 		case "":
 			return report(state);
 		default:
 			return [
-				`jev-guard: unknown argument "${argument}".`,
-				"Usage: /jev-guard [clear|on|off]",
+				`jev-gate: unknown argument "${argument}".`,
+				"Usage: /jev-gate [clear|on|off]",
 			];
 	}
 }
@@ -65,8 +65,8 @@ function report(state: CommandState): string[] {
 
 	lines.push(
 		state.enabled
-			? "jev-guard: active"
-			: "jev-guard: disabled for this session (/jev-guard on to re-enable)",
+			? "jev-gate: active"
+			: "jev-gate: disabled for this session (/jev-gate on to re-enable)",
 	);
 	lines.push("");
 
@@ -108,7 +108,7 @@ function report(state: CommandState): string[] {
 	lines.push(
 		ignoredCount === 0
 			? "Ignored this session: none"
-			: `Ignored this session: ${ignoredCount} (/jev-guard clear to restore)`,
+			: `Ignored this session: ${ignoredCount} (/jev-gate clear to restore)`,
 	);
 
 	return lines;
@@ -123,7 +123,7 @@ function summarise(text: string): string {
 
 function redact(apiKey: string | undefined): string {
 	if (apiKey === undefined) {
-		return "not set (TYPESAFE_API_KEY or jevGuard.apiKey)";
+		return "not set (TYPESAFE_API_KEY or jevGate.apiKey)";
 	}
 	if (apiKey.length <= 4) return "set (****)";
 	return `set (****${apiKey.slice(-4)})`;

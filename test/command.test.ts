@@ -1,5 +1,5 @@
 /**
- * Ticket 08: the `/jev-guard` command.
+ * Ticket 08: the `/jev-gate` command.
  *
  * Its first job is showing how the constraints file was split, because a split
  * that does not match the user's intent is this feature's most likely failure
@@ -48,7 +48,7 @@ function harness(options: HarnessOptions = {}) {
 	const fake = makeDeps({
 		fs,
 		http,
-		settings: JSON.stringify({ jevGuard: block }),
+		settings: JSON.stringify({ jevGate: block }),
 	});
 	const pi = new FakeExtensionAPI();
 	createGuard(pi as never, fake.deps);
@@ -60,7 +60,7 @@ async function run(
 	h: ReturnType<typeof harness>,
 	args = "",
 ): Promise<string> {
-	const command = h.pi.commands.get("jev-guard");
+	const command = h.pi.commands.get("jev-gate");
 	assert.ok(command, "the command must be registered");
 	const before = h.ctx.ui.notifications.length;
 	await command.handler(args, h.ctx);
@@ -73,7 +73,7 @@ async function run(
 test("the command is registered with a description", async () => {
 	const h = harness({ apiKey: "k" });
 
-	const command = h.pi.commands.get("jev-guard");
+	const command = h.pi.commands.get("jev-gate");
 
 	assert.ok(command);
 	assert.match(String(command.description), /constraint/i);
