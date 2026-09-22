@@ -1,3 +1,9 @@
 node_modules/
 *.log
 .DS_Store
+
+# pi's local task/session scratch, not project content
+.pi/
+
+# Local spec and ticket working notes
+.scratch/
