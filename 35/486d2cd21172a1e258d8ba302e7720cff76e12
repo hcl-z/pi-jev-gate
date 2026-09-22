@@ -1,0 +1,47 @@
+test/dialog.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 57
+src/config.ts
+  s_c5283a41993edd::t_27e89cac52757f 53
+package.json
+  s_c5283a41993edd::t_81e56cd05dc87a 2
+test/parsing.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 30
+test/shell.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 34
+test/command.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 2,51,63,76
+src/decision-log.ts
+  s_c5283a41993edd::t_27e89cac52757f 107
+test/degradation.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 37
+README.md
+  s_c5283a41993edd::t_27e89cac52757f 1,27,34,70,95,135,137,140-143,164,175
+src/index.ts
+  s_c5283a41993edd::t_27e89cac52757f 25,27
+test/discovery.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 35
+src/guard.ts
+  s_c5283a41993edd::t_27e89cac52757f 228,231
+test/guard.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 48,111,204,262,302,334
+test/logging.test.ts
+  s_c5283a41993edd::t_27e89cac52757f 49
+src/command.ts
+  s_c5283a41993edd::t_27e89cac52757f 2,11,14,30,44,48,52,57-58,68-69,111,126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.45-trip",
+  "base_commit_sha": "35486d2cd21172a1e258d8ba302e7720cff76e12",
+  "prompts": {},
+  "sessions": {
+    "s_c5283a41993edd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0c821-b779-741a-a8a6-cf50fd8bb9e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "hcl-z <1401859664@qq.com>"
+    }
+  }
+}
